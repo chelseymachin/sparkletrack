@@ -7,6 +7,25 @@
         </span>
         <h1>{{ project?.name ?? 'Issues' }}</h1>
       </div>
+      <div class="issues-view__actions">
+        <div class="view-toggle">
+          <RouterLink
+            :to="`/projects/${projectId}/board`"
+            class="view-toggle__btn"
+            active-class="view-toggle__btn--active"
+          >
+            ▦ Board
+          </RouterLink>
+          <RouterLink
+            :to="`/projects/${projectId}/issues`"
+            class="view-toggle__btn"
+            active-class="view-toggle__btn--active"
+          >
+            ≡ List
+          </RouterLink>
+        </div>
+        <button class="btn btn--primary" @click="uiStore.openCreateIssue()">+ Issue</button>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -99,9 +118,8 @@ const issuesStore   = useIssuesStore()
 const projectsStore = useProjectsStore()
 const uiStore       = useUIStore()
 
-const currentView = ref('list')
-const projectId   = computed(() => Number(route.params.projectId))
-const project     = computed(() => projectsStore.projects.find(p => p.id === projectId.value))
+const projectId = computed(() => Number(route.params.projectId))
+const project   = computed(() => projectsStore.projects.find(p => p.id === projectId.value))
 
 const activeFilters = reactive({ status: '', type: '', priority: '' })
 const hasActiveFilters = computed(() =>
@@ -169,6 +187,29 @@ function formatDate(dateStr) {
   font-family: $font-mono;
   font-size: 0.85rem;
   font-weight: 700;
+}
+
+.view-toggle {
+  display: flex;
+  border: 1.5px solid $gray-200;
+  border-radius: $radius-pill;
+  overflow: hidden;
+
+  &__btn {
+    padding: 7px $space-4;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $gray-400;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover { background: $gray-50; color: $gray-600; }
+
+    &--active {
+      background: $pink-500;
+      color: $white;
+      font-weight: 600;
+    }
+  }
 }
 
 .filter-bar {

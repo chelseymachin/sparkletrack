@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import api from '../api/axios.js'
 
 export const useIssuesStore = defineStore('issues', () => {
@@ -14,6 +14,23 @@ export const useIssuesStore = defineStore('issues', () => {
     status:   null,
     type:     null,
     priority: null,
+  })
+
+  // groups current project issues by status for the board view
+  const issuesByStatus = computed(() => {
+    const groups = {
+      backlog: [],
+      todo: [],
+      in_progress: [],
+      in_review: [],
+      done: [],
+    }
+    for (const issue of issues.value) {
+      if (groups[issue.status]) {
+        groups[issue.status].push(issue)
+      }
+    }
+    return groups
   })
 
   function setFilter(key, value) {
@@ -52,6 +69,10 @@ export const useIssuesStore = defineStore('issues', () => {
     } finally {
       loading.value = false
     }
+  }
+
+  async function reorderIssues(projectId, orderedIds, status) {
+    await api.patch(`/issues/reorder/${projectId}`, { orderedIds, status })
   }
 
   async function fetchIssueByKey(key) {
@@ -102,6 +123,7 @@ export const useIssuesStore = defineStore('issues', () => {
     issues, allIssues, activeIssue, loading, error, filters,
     setFilter, clearFilters,
     fetchIssues, fetchAllIssues, fetchIssueByKey,
-    createIssue, updateIssue, updateIssueStatus, deleteIssue,
+    createIssue, updateIssue, updateIssueStatus, deleteIssue, reorderIssues,
+    issuesByStatus,
   }
 })

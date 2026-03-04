@@ -106,7 +106,7 @@ router.get('/project/:projectId', async (req, res, next) => {
       })
       .from(issues)
       .where(and(...conditions))
-      .orderBy(desc(issues.createdAt))
+      .orderBy(issues.boardOrder)
       .all()
 
     res.json(result)
@@ -274,6 +274,35 @@ router.put('/:id', async (req, res, next) => {
       .get()
 
     res.json(updated)
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── PATCH /api/issues/reorder/:projectId ─────────────────
+router.patch('/reorder/:projectId', async (req, res, next) => {
+  try {
+    const { orderedIds, status } = req.body  // ← add status
+    const projectId = Number(req.params.projectId)
+    console.log('reorder hit:', { orderedIds, status, projectId })
+
+    if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
+      return res.status(400).json({ error: 'orderedIds must be a non-empty array' })
+    }
+
+    orderedIds.forEach((id, index) => {
+      db.update(issues)
+        .set({ boardOrder: index })
+        .where(and(
+          eq(issues.id, id),
+          eq(issues.projectId, projectId),
+          eq(issues.status, status)  // ← scope to column status
+        ))
+        .run()
+      console.log(`updated id ${id} to boardOrder ${index}`)
+    })
+
+    res.json({ success: true })
   } catch (err) {
     next(err)
   }
