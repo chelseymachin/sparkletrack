@@ -1,5 +1,5 @@
 <template>
-  <div class="project-card" @click="$router.push(`/projects/${project.id}/board`)">
+  <div class="project-card" @click="$router.push(`/projects/${project.id}/issues`)">
     <div class="project-card__header">
       <div class="project-card__icon" :style="{ background: project.color + '22' }">
         {{ project.icon }}

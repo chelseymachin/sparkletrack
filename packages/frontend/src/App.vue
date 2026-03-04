@@ -10,6 +10,7 @@
 
     <!-- global overlays -->
     <CreateProjectModal />
+    <CreateIssueModal />
     <ToastNotifications />
   </div>
 </template>
@@ -17,6 +18,7 @@
 <script setup>
 import AppSidebar from './components/AppSidebar.vue'
 import AppTopbar from './components/AppTopbar.vue'
+import CreateIssueModal from './components/CreateIssueModal.vue'
 import CreateProjectModal from './components/CreateProjectModal.vue'
 import ToastNotifications from './components/ToastNotifications.vue'
 import { useProjectsStore } from './stores/projects.js'

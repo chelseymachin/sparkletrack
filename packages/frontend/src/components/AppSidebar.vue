@@ -17,7 +17,7 @@
       <RouterLink
         v-for="project in projectsStore.projects"
         :key="project.id"
-        :to="`/projects/${project.id}/board`"
+        :to="`/projects/${project.id}/issues`"
         class="nav-item"
         active-class="nav-item--active"
       >
