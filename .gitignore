@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Database 
+packages/backend/*.db
+packages/backend/*.db-shm
+packages/backend/*.db-wal
+
+# Environment variables
+.env
+**/.env
+
+# Vite build output
+packages/frontend/dist/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

@@ -1,0 +1,69 @@
+@use 'tokens' as *;
+
+:root {
+  // Brand
+  --pink-50:    #{$pink-50};
+  --pink-100:   #{$pink-100};
+  --pink-200:   #{$pink-200};
+  --pink-300:   #{$pink-300};
+  --pink-400:   #{$pink-400};
+  --pink-500:   #{$pink-500};
+
+  --purple-50:  #{$purple-50};
+  --purple-100: #{$purple-100};
+  --purple-200: #{$purple-200};
+  --purple-300: #{$purple-300};
+  --purple-400: #{$purple-400};
+  --purple-500: #{$purple-500};
+
+  --mint-100:   #{$mint-100};
+  --mint-300:   #{$mint-300};
+  --mint-500:   #{$mint-500};
+
+  --gold-100:   #{$gold-100};
+  --gold-300:   #{$gold-300};
+  --gold-500:   #{$gold-500};
+
+  --coral-100:  #{$coral-100};
+  --coral-300:  #{$coral-300};
+  --coral-500:  #{$coral-500};
+
+  // Neutrals
+  --white:      #{$white};
+  --off-white:  #{$off-white};
+  --bg:         #{$bg};
+  --gray-50:    #{$gray-50};
+  --gray-100:   #{$gray-100};
+  --gray-200:   #{$gray-200};
+  --gray-400:   #{$gray-400};
+  --gray-600:   #{$gray-600};
+  --gray-800:   #{$gray-800};
+
+  // Typography
+  --font-display: #{$font-display};
+  --font-body:    #{$font-body};
+  --font-mono:    #{$font-mono};
+
+  // Spacing
+  --space-1:  #{$space-1};
+  --space-2:  #{$space-2};
+  --space-3:  #{$space-3};
+  --space-4:  #{$space-4};
+  --space-5:  #{$space-5};
+  --space-6:  #{$space-6};
+  --space-8:  #{$space-8};
+  --space-10: #{$space-10};
+  --space-12: #{$space-12};
+  --space-16: #{$space-16};
+
+  // Radius
+  --radius-sm:   #{$radius-sm};
+  --radius-md:   #{$radius-md};
+  --radius-lg:   #{$radius-lg};
+  --radius-pill: #{$radius-pill};
+
+  // Shadows
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+}

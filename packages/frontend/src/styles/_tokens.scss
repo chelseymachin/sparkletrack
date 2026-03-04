@@ -1,0 +1,82 @@
+// ── Brand Colors ─────────────────────────────────────────
+$pink-50:    #fff0f6;
+$pink-100:   #ffd6e8;
+$pink-200:   #ffadd2;
+$pink-300:   #ff85c2;
+$pink-400:   #ff5eab;
+$pink-500:   #eb2d8f;
+
+$purple-50:  #f5f0ff;
+$purple-100: #e8d8ff;
+$purple-200: #d0b0ff;
+$purple-300: #b380ff;
+$purple-400: #9955ff;
+$purple-500: #7722e8;
+
+$mint-100:   #d4f5ec;
+$mint-300:   #72e5c0;
+$mint-500:   #1ab87a;
+
+$gold-100:   #fff3cc;
+$gold-300:   #ffd94d;
+$gold-500:   #f0a800;
+
+$coral-100:  #ffe4dc;
+$coral-300:  #ff9980;
+$coral-500:  #e84420;
+
+// ── Neutrals ─────────────────────────────────────────────
+$white:      #ffffff;
+$off-white:  #fdf8ff;
+$bg:         #fdf6ff;
+$gray-50:    #faf5ff;
+$gray-100:   #f0e8ff;
+$gray-200:   #ddd0f0;
+$gray-400:   #9980bb;
+$gray-600:   #5c4d7a;
+$gray-800:   #2d1f4a;
+
+// ── Typography ────────────────────────────────────────────
+$font-display: 'Playfair Display', Georgia, serif;
+$font-body:    'DM Sans', sans-serif;
+$font-mono:    'DM Mono', monospace;
+
+// ── Spacing (8pt grid) ────────────────────────────────────
+$space-1:  4px;
+$space-2:  8px;
+$space-3:  12px;
+$space-4:  16px;
+$space-5:  20px;
+$space-6:  24px;
+$space-8:  32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+
+// ── Border Radius ─────────────────────────────────────────
+$radius-sm:   8px;
+$radius-md:   14px;
+$radius-lg:   22px;
+$radius-pill: 999px;
+
+// ── Shadows ───────────────────────────────────────────────
+$shadow-sm: 0 2px 8px rgba(122, 40, 180, 0.08);
+$shadow-md: 0 4px 20px rgba(122, 40, 180, 0.14);
+$shadow-lg: 0 8px 40px rgba(122, 40, 180, 0.18);
+
+// ── Status Colors ─────────────────────────────────────────
+$status-colors: (
+  'backlog':     $gray-400,
+  'todo':        $pink-400,
+  'in_progress': $purple-400,
+  'in_review':   $gold-300,
+  'done':        $mint-500,
+);
+
+// ── Priority Colors ───────────────────────────────────────
+$priority-colors: (
+  'low':      $gray-400,
+  'medium':   $purple-400,
+  'high':     $pink-400,
+  'critical': $coral-500,
+);
