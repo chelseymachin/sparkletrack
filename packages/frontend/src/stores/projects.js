@@ -21,7 +21,9 @@ export const useProjectsStore = defineStore('projects', () => {
   }
 
   async function createProject(payload) {
-    const res = await api.post('/projects', payload)
+    // Auto-uppercase prefix before sending
+    const body = { ...payload, prefix: payload.prefix?.toUpperCase() }
+    const res = await api.post('/projects', body)
     projects.value.push(res.data)
     return res.data
   }
@@ -38,5 +40,8 @@ export const useProjectsStore = defineStore('projects', () => {
     projects.value = projects.value.filter(p => p.id !== id)
   }
 
-  return { projects, loading, error, fetchProjects, createProject, updateProject, archiveProject }
+  return {
+    projects, loading, error,
+    fetchProjects, createProject, updateProject, archiveProject
+  }
 })

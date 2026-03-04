@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import { db } from './src/db/client.js'
+import projectsRouter from './src/routes/projects.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 3001
@@ -18,7 +19,7 @@ router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: '✨ SparkleTrack API is running!' })
 })
 
-router.get('/projects', (req, res) => res.json([]))
+router.use('/projects', projectsRouter)
 router.get('/issues', (req, res) => res.json([]))
 
 app.use('/api', router)

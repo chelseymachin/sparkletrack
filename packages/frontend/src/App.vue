@@ -7,12 +7,18 @@
         <RouterView />
       </main>
     </div>
+
+    <!-- global overlays -->
+    <CreateProjectModal />
+    <ToastNotifications />
   </div>
 </template>
 
 <script setup>
 import AppSidebar from './components/AppSidebar.vue'
 import AppTopbar from './components/AppTopbar.vue'
+import CreateProjectModal from './components/CreateProjectModal.vue'
+import ToastNotifications from './components/ToastNotifications.vue'
 import { useProjectsStore } from './stores/projects.js'
 
 // Load projects on app mount so sidebar is populated
