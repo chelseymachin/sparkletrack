@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\"",
     "dev:backend": "npm run dev -w packages/backend",
     "dev:frontend": "npm run dev -w packages/frontend"
   },

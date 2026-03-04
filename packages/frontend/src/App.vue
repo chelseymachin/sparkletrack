@@ -1,30 +1,42 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="app-shell">
+    <AppSidebar />
+    <div class="app-main">
+      <AppTopbar />
+      <main class="app-content">
+        <RouterView />
+      </main>
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import AppSidebar from './components/AppSidebar.vue'
+import AppTopbar from './components/AppTopbar.vue'
+import { useProjectsStore } from './stores/projects.js'
+
+// Load projects on app mount so sidebar is populated
+const projectsStore = useProjectsStore()
+projectsStore.fetchProjects()
+</script>
+
+<style lang="scss">
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; 
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.app-content {
+  flex: 1;
+  padding: var(--space-8);
+  overflow-y: auto;
 }
 </style>

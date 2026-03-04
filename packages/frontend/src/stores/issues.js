@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import axios from 'axios'
+import api from '../api/axios.js'
 
 export const useIssuesStore = defineStore('issues', () => {
   const issues        = ref([])   // current project's issues
@@ -13,7 +13,7 @@ export const useIssuesStore = defineStore('issues', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await axios.get(`/api/projects/${projectId}/issues`)
+      const res = await api.get(`/projects/${projectId}/issues`)
       issues.value = res.data
     } catch (e) {
       error.value = e.message
@@ -25,7 +25,7 @@ export const useIssuesStore = defineStore('issues', () => {
   async function fetchAllIssues(params = {}) {
     loading.value = true
     try {
-      const res = await axios.get('/api/issues', { params })
+      const res = await api.get('/issues', { params })
       allIssues.value = res.data
     } catch (e) {
       error.value = e.message
@@ -37,7 +37,7 @@ export const useIssuesStore = defineStore('issues', () => {
   async function fetchIssueByKey(key) {
     loading.value = true
     try {
-      const res = await axios.get(`/api/issues/${key}`)
+      const res = await api.get(`/issues/${key}`)
       activeIssue.value = res.data
     } catch (e) {
       error.value = e.message
@@ -47,13 +47,13 @@ export const useIssuesStore = defineStore('issues', () => {
   }
 
   async function createIssue(projectId, payload) {
-    const res = await axios.post(`/api/projects/${projectId}/issues`, payload)
+    const res = await api.post(`/projects/${projectId}/issues`, payload)
     issues.value.push(res.data)
     return res.data
   }
 
   async function updateIssue(id, payload) {
-    const res = await axios.put(`/api/issues/${id}`, payload)
+    const res = await api.put(`/issues/${id}`, payload)
     // Update in whichever list contains this issue
     const idx = issues.value.findIndex(i => i.id === id)
     if (idx !== -1) issues.value[idx] = res.data
@@ -62,7 +62,7 @@ export const useIssuesStore = defineStore('issues', () => {
   }
 
   async function updateIssueStatus(id, status) {
-    const res = await axios.patch(`/api/issues/${id}/status`, { status })
+    const res = await api.patch(`/issues/${id}/status`, { status })
     const idx = issues.value.findIndex(i => i.id === id)
     if (idx !== -1) issues.value[idx] = res.data
     if (activeIssue.value?.id === id) activeIssue.value = res.data
@@ -70,7 +70,7 @@ export const useIssuesStore = defineStore('issues', () => {
   }
 
   async function deleteIssue(id) {
-    await axios.delete(`/api/issues/${id}`)
+    await api.delete(`/issues/${id}`)
     issues.value = issues.value.filter(i => i.id !== id)
     if (activeIssue.value?.id === id) activeIssue.value = null
   }

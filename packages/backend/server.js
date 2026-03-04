@@ -7,18 +7,21 @@ const PORT = process.env.PORT ?? 3001
 
 // ── Middleware ────────────────────────────────────────────
 app.use(cors({
-  origin: 'http://localhost:5173'  // Vite dev server
+  origin: 'http://localhost:5173'
 }))
 app.use(express.json())
 
-// ── Health check ──────────────────────────────────────────
-app.get('/api/health', (req, res) => {
+// ── API Router ────────────────────────────────────────────
+const router = express.Router()
+
+router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: '✨ SparkleTrack API is running!' })
 })
 
-// ── Placeholder routes (filled out later) ────────
-app.get('/api/projects', (req, res) => res.json([]))
-app.get('/api/issues', (req, res) => res.json([]))
+router.get('/projects', (req, res) => res.json([]))
+router.get('/issues', (req, res) => res.json([]))
+
+app.use('/api', router)
 
 // ── 404 fallback ──────────────────────────────────────────
 app.use((req, res) => {
