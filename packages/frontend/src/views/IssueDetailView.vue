@@ -18,6 +18,7 @@
     <div class="issue-detail__body">
       <!-- Main content -->
       <div class="issue-detail__main">
+
         <!-- Title -->
         <div v-if="!editingTitle" class="issue-detail__title" @click="startEditTitle">
           <h1>{{ issue.title }}</h1>
@@ -38,50 +39,102 @@
         <div class="issue-detail__section">
           <div class="section-label">Description</div>
           <div v-if="!editingDescription" class="description-display" @click="startEditDescription">
-            <p v-if="issue.description" v-html="issue.description"></p>
+            <div
+              v-if="issue.description"
+              class="description-content"
+              v-html="issue.description"
+            ></div>
             <p v-else class="description-empty">Add a description... (click to edit)</p>
           </div>
           <div v-else class="description-edit">
-            <textarea
+            <RichTextEditor
               v-model="descriptionDraft"
-              class="description-textarea"
-              rows="6"
-              @blur="saveDescription"
+              @save="saveDescription"
             />
-            <div class="description-edit__actions">
-              <button class="btn btn--primary btn--sm" @click="saveDescription">Save</button>
-              <button class="btn btn--secondary btn--sm" @click="editingDescription = false">Cancel</button>
-            </div>
+            <button
+              class="btn btn--secondary btn--sm"
+              style="margin-top: 8px"
+              @click="editingDescription = false"
+            >
+              Cancel
+            </button>
           </div>
         </div>
 
-        <!-- Activity log -->
+        <!-- Activity feed -->
         <div class="issue-detail__section">
           <div class="section-label">Activity</div>
+
+          <!-- Comment input -->
+          <div class="comment-input">
+            <textarea
+              v-model="commentBody"
+              class="comment-input__textarea"
+              placeholder="Leave a comment..."
+              rows="2"
+              @keydown.meta.enter="submitComment"
+            />
+            <div class="comment-input__actions">
+              <span class="comment-input__hint">⌘↵ to submit</span>
+              <button
+                class="btn btn--primary btn--sm"
+                :disabled="!commentBody.trim() || submittingComment"
+                @click="submitComment"
+              >
+                {{ submittingComment ? 'Posting...' : 'Comment' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Feed entries -->
           <div class="activity-feed">
             <div
-              v-for="entry in (issue.activity ?? [])"
-              :key="entry.id"
-              class="activity-entry"
+              v-for="entry in issue.feed"
+              :key="`${entry.feedType}-${entry.id}`"
+              class="feed-entry"
+              :class="`feed-entry--${entry.feedType}`"
             >
-              <div class="activity-entry__dot"
-                :class="entry.action === 'status_changed' ? 'dot--purple' : 'dot--pink'"
-              ></div>
-              <div class="activity-entry__content">
-                <span v-if="entry.action === 'status_changed'">
-                  Status changed:
-                  <StatusBadge :status="entry.fromValue" />
-                  →
-                  <StatusBadge :status="entry.toValue" />
-                </span>
-                <span v-else-if="entry.action === 'issue_created'">
-                  Issue created with status <StatusBadge :status="entry.toValue" />
-                </span>
-                <span v-else>{{ entry.action }}</span>
-              </div>
-              <div class="activity-entry__time">{{ formatDate(entry.createdAt) }}</div>
+              <!-- Comment entry -->
+              <template v-if="entry.feedType === 'comment'">
+                <div class="feed-entry__dot dot--pink"></div>
+                <div class="feed-entry__bubble">
+                  <div class="feed-entry__comment-body" v-html="entry.body"></div>
+                  <div class="feed-entry__meta">
+                    <span class="feed-entry__time">{{ formatDateAndTime(entry.createdAt) }}</span>
+                    <button
+                      class="feed-entry__delete"
+                      @click="deleteComment(entry.id)"
+                    >
+                      delete
+                    </button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Activity entry -->
+              <template v-else>
+                <div
+                  class="feed-entry__dot"
+                  :class="entry.action === 'status_changed' ? 'dot--purple' : 'dot--pink'"
+                ></div>
+                <div class="feed-entry__content">
+                  <span v-if="entry.action === 'status_changed'">
+                    Status changed:
+                    <StatusBadge :status="entry.fromValue" />
+                    →
+                    <StatusBadge :status="entry.toValue" />
+                  </span>
+                  <span v-else-if="entry.action === 'issue_created'">
+                    Issue created with status
+                    <StatusBadge :status="entry.toValue" />
+                  </span>
+                  <span v-else>{{ entry.action }}</span>
+                </div>
+                <div class="feed-entry__time">{{ formatDateAndTime(entry.createdAt) }}</div>
+              </template>
             </div>
-            <div v-if="!issue.activity?.length" class="activity-empty">
+
+            <div v-if="!issue.feed?.length" class="activity-empty">
               No activity yet.
             </div>
           </div>
@@ -125,8 +178,19 @@
           </div>
 
           <div class="sidebar-field">
+            <div class="sidebar-field__label">Labels</div>
+            <LabelPicker
+              :issue-id="issue.id"
+              :selected-labels="issue.labels ?? []"
+              :available-labels="labelsStore.labels"
+              @add="addLabel"
+              @remove="removeLabel"
+            />
+          </div>
+
+          <div class="sidebar-field">
             <div class="sidebar-field__label">Created</div>
-            <div class="sidebar-field__value">{{ formatDate(issue.createdAt) }}</div>
+            <div class="sidebar-field__value">{{ formatDateAndTime(issue.createdAt) }}</div>
           </div>
 
           <div class="sidebar-field">
@@ -147,17 +211,44 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useIssuesStore } from '../stores/issues.js'
+import { useLabelsStore } from '../stores/labels.js'
 import { useUIStore } from '../stores/ui.js'
 import StatusBadge from '../components/StatusBadge.vue'
 import StatusDropdown from '../components/StatusDropdown.vue'
-import PriorityBadge from '../components/PriorityBadge.vue'
+import RichTextEditor from '../components/RichTextEditor.vue'
+import LabelPicker from '../components/LabelPicker.vue'
+import LabelChip from '../components/LabelChip.vue'
 
 const route       = useRoute()
 const router      = useRouter()
 const issuesStore = useIssuesStore()
+const labelsStore = useLabelsStore()
 const uiStore     = useUIStore()
 
 const issue = computed(() => issuesStore.activeIssue)
+
+// When the route key changes, fetch the issue
+watch(
+  () => route.params.key,
+  (key) => {
+    if (key) issuesStore.fetchIssueByKey(key)
+  },
+  { immediate: true }
+)
+
+// When the issue loads or status changes, fetch labels and refresh feed
+watch(
+  () => issue.value?.status,
+  async (newStatus, oldStatus) => {
+    if (issue.value?.projectId) {
+      labelsStore.fetchLabels(issue.value.projectId)
+    }
+    if (newStatus && oldStatus && newStatus !== oldStatus) {
+      await issuesStore.fetchIssueByKey(route.params.key)
+    }
+  },
+  { immediate: true }
+)
 
 // Title editing
 const editingTitle = ref(false)
@@ -184,18 +275,49 @@ function startEditDescription() {
   editingDescription.value = true
 }
 
-async function saveDescription() {
+async function saveDescription(html) {
   editingDescription.value = false
-  await issuesStore.updateIssue(issue.value.id, { description: descriptionDraft.value })
-  // Refresh to get updated activity log
+  await issuesStore.updateIssue(issue.value.id, { description: html })
   await issuesStore.fetchIssueByKey(route.params.key)
 }
 
+// Field updates
 async function updateField(field, value) {
   await issuesStore.updateIssue(issue.value.id, { [field]: value })
   await issuesStore.fetchIssueByKey(route.params.key)
 }
 
+// Labels
+async function addLabel(labelId) {
+  await issuesStore.addLabel(issue.value.id, labelId)
+}
+
+async function removeLabel(labelId) {
+  await issuesStore.removeLabel(issue.value.id, labelId)
+}
+
+// Comments
+const commentBody       = ref('')
+const submittingComment = ref(false)
+
+async function submitComment() {
+  if (!commentBody.value.trim()) return
+  submittingComment.value = true
+  try {
+    await issuesStore.addComment(issue.value.id, commentBody.value)
+    commentBody.value = ''
+  } catch {
+    uiStore.toast.error('Failed to post comment')
+  } finally {
+    submittingComment.value = false
+  }
+}
+
+async function deleteComment(commentId) {
+  await issuesStore.deleteComment(commentId)
+}
+
+// Delete issue
 async function handleDelete() {
   if (!confirm(`Delete ${issue.value.fullKey}? This cannot be undone.`)) return
   await issuesStore.deleteIssue(issue.value.id)
@@ -203,18 +325,16 @@ async function handleDelete() {
   router.back()
 }
 
-function formatDate(dateStr) {
+function formatDateAndTime(dateStr) {
   return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric'
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
   })
 }
-
-watch(
-  () => route.params.key,
-  (key) => {
-    if (key) issuesStore.fetchIssueByKey(key)
-  }, { immediate: true }
-)
 </script>
 
 <style lang="scss" scoped>
@@ -253,7 +373,6 @@ watch(
     gap: $space-3;
     margin-bottom: $space-6;
     cursor: pointer;
-    group: true;
 
     h1 {
       font-family: $font-display;
@@ -265,9 +384,7 @@ watch(
     &:hover .edit-hint { opacity: 1; }
   }
 
-  &__section {
-    margin-bottom: $space-8;
-  }
+  &__section { margin-bottom: $space-8; }
 }
 
 .edit-hint {
@@ -308,34 +425,143 @@ watch(
   padding: $space-4 $space-5;
   cursor: pointer;
   min-height: 80px;
+  transition: border-color 0.15s;
 
   &:hover { border-color: $pink-200; }
+}
 
-  p { font-size: 0.9rem; color: $gray-600; line-height: 1.6; }
+.description-content {
+  font-size: 0.9rem;
+  color: $gray-600;
+  line-height: 1.6;
+
+  :deep(p)      { margin: 0 0 $space-2; }
+  :deep(strong) { font-weight: 700; }
+  :deep(em)     { font-style: italic; }
+  :deep(ul), :deep(ol) { padding-left: $space-5; margin: $space-2 0; }
+  :deep(code) {
+    background: $gray-100;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: $font-mono;
+    font-size: 0.85em;
+  }
+  :deep(pre) {
+    background: $gray-800;
+    color: $white;
+    border-radius: $radius-sm;
+    padding: $space-4;
+    font-family: $font-mono;
+    font-size: 0.85em;
+    overflow-x: auto;
+  }
 }
 
 .description-empty {
-  color: $gray-400 !important;
+  color: $gray-400;
   font-style: italic;
-}
-
-.description-textarea {
-  width: 100%;
-  border: 1.5px solid $pink-300;
-  border-radius: $radius-md;
-  padding: $space-4;
-  font-family: $font-body;
   font-size: 0.9rem;
-  color: $gray-800;
-  resize: vertical;
-  outline: none;
-  background: $white;
 }
 
-.description-edit__actions {
+.comment-input {
+  margin-bottom: $space-5;
+
+  &__textarea {
+    width: 100%;
+    border: 1.5px solid $gray-200;
+    border-radius: $radius-md;
+    padding: $space-3;
+    font-family: $font-body;
+    font-size: 0.88rem;
+    color: $gray-800;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+
+    &:focus { border-color: $pink-400; }
+    &::placeholder { color: $gray-400; }
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: $space-2;
+  }
+
+  &__hint { font-size: 0.72rem; color: $gray-400; }
+}
+
+.activity-feed {
   display: flex;
-  gap: $space-2;
-  margin-top: $space-2;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.feed-entry {
+  display: flex;
+  gap: $space-3;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  color: $gray-600;
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+
+    &.dot--purple { background: $purple-400; }
+    &.dot--pink   { background: $pink-400; }
+  }
+
+  &__bubble {
+    flex: 1;
+    background: $gray-50;
+    border: 1px solid $gray-100;
+    border-radius: $radius-md;
+    padding: $space-3 $space-4;
+  }
+
+  &__comment-body {
+    font-size: 0.88rem;
+    color: $gray-800;
+    line-height: 1.5;
+    margin-bottom: $space-2;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: $space-3;
+  }
+
+  &__content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    flex-wrap: wrap;
+  }
+
+  &__time {
+    font-size: 0.72rem;
+    color: $gray-400;
+    white-space: nowrap;
+  }
+
+  &__delete {
+    font-size: 0.72rem;
+    color: $gray-400;
+    &:hover { color: $coral-500; }
+  }
+}
+
+.activity-empty {
+  font-size: 0.82rem;
+  color: $gray-400;
+  font-style: italic;
 }
 
 .back-btn {
@@ -389,39 +615,6 @@ watch(
   &:focus { border-color: $pink-300; }
 }
 
-.activity-feed {
-  display: flex;
-  flex-direction: column;
-  gap: $space-3;
-}
-
-.activity-entry {
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-  font-size: 0.82rem;
-  color: $gray-600;
-
-  &__dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-
-    &.dot--purple { background: $purple-400; }
-    &.dot--pink   { background: $pink-400; }
-  }
-
-  &__content { flex: 1; display: flex; align-items: center; gap: $space-2; flex-wrap: wrap; }
-  &__time    { font-size: 0.72rem; color: $gray-400; white-space: nowrap; }
-}
-
-.activity-empty {
-  font-size: 0.82rem;
-  color: $gray-400;
-  font-style: italic;
-}
-
 .delete-btn {
   margin-top: $space-3;
   width: 100%;
@@ -451,7 +644,8 @@ watch(
   &--primary {
     background: $pink-500;
     color: $white;
-    &:hover { background: $pink-400; }
+    &:hover    { background: $pink-400; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
   }
 
   &--secondary {

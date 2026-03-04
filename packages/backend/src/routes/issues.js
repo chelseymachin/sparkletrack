@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { db } from '../db/client.js'
-import { issues, projects, activityLog } from '../db/schema.js'
+import { issues, projects, activityLog, issueLabels, labels, comments } from '../db/schema.js'
 import { eq, sql, and, desc } from 'drizzle-orm'
 import { z } from 'zod'
 
@@ -109,7 +109,22 @@ router.get('/project/:projectId', async (req, res, next) => {
       .orderBy(issues.boardOrder)
       .all()
 
-    res.json(result)
+      const issuesWithLabels = result.map(issue => {
+        const issueLabelsResult = db
+          .select({
+            id:    labels.id,
+            name:  labels.name,
+            color: labels.color,
+          })
+          .from(issueLabels)
+          .innerJoin(labels, eq(issueLabels.labelId, labels.id))
+          .where(eq(issueLabels.issueId, issue.id))
+          .all()
+
+        return { ...issue, labels: issueLabelsResult }
+      })
+
+    res.json(issuesWithLabels)
   } catch (err) {
     next(err)
   }
@@ -147,14 +162,39 @@ router.get('/:key', async (req, res, next) => {
       return res.status(404).json({ error: 'Issue not found' })
     }
 
+    // Fetch labels for this issue
+    const issueLabelsResult = db
+      .select({
+        id:    labels.id,
+        name:  labels.name,
+        color: labels.color,
+      })
+      .from(issueLabels)
+      .innerJoin(labels, eq(issueLabels.labelId, labels.id))
+      .where(eq(issueLabels.issueId, issue.id))
+      .all()
+
+    // Fetch activity log entries
     const activity = db
       .select()
       .from(activityLog)
       .where(eq(activityLog.issueId, issue.id))
-      .orderBy(desc(activityLog.createdAt))
       .all()
 
-    res.json({ ...issue, activity })
+    // Fetch comments
+    const issueComments = db
+      .select()
+      .from(comments)
+      .where(eq(comments.issueId, issue.id))
+      .all()
+
+    // Combine activity + comments into a single chronological feed
+    const feed = [
+      ...activity.map(a => ({ ...a, feedType: 'activity' })),
+      ...issueComments.map(c => ({ ...c, feedType: 'comment' })),
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+    res.json({ ...issue, labels: issueLabelsResult, feed })
   } catch (err) {
     next(err)
   }

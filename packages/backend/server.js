@@ -3,6 +3,8 @@ import cors from 'cors'
 import { db } from './src/db/client.js'
 import projectsRouter from './src/routes/projects.js'
 import issuesRouter from './src/routes/issues.js'
+import labelsRouter   from './src/routes/labels.js'
+import commentsRouter from './src/routes/comments.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 3001
@@ -18,6 +20,8 @@ router.get('/health', (req, res) => {
 
 router.use('/projects', projectsRouter)
 router.use('/issues', issuesRouter)
+router.use('/labels', labelsRouter)
+router.use('/comments', commentsRouter)
 
 router.post('/projects/:projectId/issues', (req, res, next) => {
   req.url = `/project/${req.params.projectId}`
@@ -27,6 +31,39 @@ router.post('/projects/:projectId/issues', (req, res, next) => {
 router.get('/projects/:projectId/issues', (req, res, next) => {
   req.url = `/project/${req.params.projectId}`
   issuesRouter(req, res, next)
+})
+
+// Project-scoped label routes
+router.get('/projects/:projectId/labels', (req, res, next) => {
+  req.url = `/project/${req.params.projectId}`
+  labelsRouter(req, res, next)
+})
+
+router.post('/projects/:projectId/labels', (req, res, next) => {
+  req.url = `/project/${req.params.projectId}`
+  labelsRouter(req, res, next)
+})
+
+// Issue-scoped comment routes
+router.get('/issues/:issueId/comments', (req, res, next) => {
+  req.url = `/${req.params.issueId}`
+  commentsRouter(req, res, next)
+})
+
+router.post('/issues/:issueId/comments', (req, res, next) => {
+  req.url = `/${req.params.issueId}`
+  commentsRouter(req, res, next)
+})
+
+// Issue-label association routes
+router.post('/issues/:issueId/labels/:labelId', (req, res, next) => {
+  req.url = `/issue/${req.params.issueId}/add/${req.params.labelId}`
+  labelsRouter(req, res, next)
+})
+
+router.delete('/issues/:issueId/labels/:labelId', (req, res, next) => {
+  req.url = `/issue/${req.params.issueId}/remove/${req.params.labelId}`
+  labelsRouter(req, res, next)
 })
 
 app.use('/api', router)

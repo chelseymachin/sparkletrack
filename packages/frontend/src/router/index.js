@@ -8,6 +8,7 @@ import ProjectIssuesView from '../views/ProjectIssuesView.vue'
 import IssueDetailView   from '../views/IssueDetailView.vue'
 import AllIssuesView     from '../views/AllIssuesView.vue'
 import NotFoundView      from '../views/NotFoundView.vue'
+import ProjectSettingsView from '../views/ProjectSettingsView.vue'
 
 const routes = [
   {
@@ -40,6 +41,11 @@ const routes = [
     path: '/issues/:key',
     name: 'issue-detail',
     component: IssueDetailView,
+  },
+  {
+    path: '/projects/:projectId/settings',
+    name: 'project-settings',
+    component: ProjectSettingsView,
   },
   {
     path: '/:pathMatch(.*)*',

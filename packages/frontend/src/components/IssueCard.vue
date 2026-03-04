@@ -9,6 +9,16 @@
 
     <div class="issue-card__title">{{ issue.title }}</div>
 
+    <!-- Labels -->
+    <div v-if="issue.labels?.length" class="issue-card__labels">
+      <LabelChip
+        v-for="label in issue.labels"
+        :key="label.id"
+        :name="label.name"
+        :color="label.color"
+      />
+    </div>
+
     <div class="issue-card__footer">
       <TypeBadge :type="issue.type" />
     </div>
@@ -18,10 +28,11 @@
 <script setup>
 import PriorityBadge from './PriorityBadge.vue'
 import TypeBadge from './TypeBadge.vue'
+import LabelChip from './LabelChip.vue'
 
 defineProps({
-  issue:        { type: Object,  required: true },
-  projectColor: { type: String,  default: '#ff5eab' },
+  issue:        { type: Object, required: true },
+  projectColor: { type: String, default: '#ff5eab' },
 })
 </script>
 
@@ -60,11 +71,18 @@ defineProps({
     color: $gray-800;
     line-height: 1.4;
     margin-bottom: $space-3;
-    // clamp to 2 lines
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  &__labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $space-1;
+    margin-bottom: $space-2;
   }
 
   &__footer {

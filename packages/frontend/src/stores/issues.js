@@ -119,11 +119,49 @@ export const useIssuesStore = defineStore('issues', () => {
     if (activeIssue.value?.id === id) activeIssue.value = null
   }
 
+  // Labels
+  async function fetchIssueLabels(issueId) {
+    const res = await api.get(`/labels/issue/${issueId}`)
+    return res.data
+  }
+
+  async function addLabel(issueId, labelId) {
+    await api.post(`/issues/${issueId}/labels/${labelId}`)
+    if (activeIssue.value?.id === issueId) {
+      await fetchIssueByKey(activeIssue.value.fullKey)
+    }
+  }
+
+  async function removeLabel(issueId, labelId) {
+    await api.delete(`/issues/${issueId}/labels/${labelId}`)
+    if (activeIssue.value?.id === issueId) {
+      await fetchIssueByKey(activeIssue.value.fullKey)
+    }
+  }
+
+  // Comments
+  async function addComment(issueId, body) {
+    const res = await api.post(`/issues/${issueId}/comments`, { body })
+    // Refresh issue to get updated feed
+    if (activeIssue.value?.id === issueId) {
+      await fetchIssueByKey(activeIssue.value.fullKey)
+    }
+    return res.data
+  }
+
+  async function deleteComment(commentId) {
+    await api.delete(`/comments/delete/${commentId}`)
+    if (activeIssue.value) {
+      await fetchIssueByKey(activeIssue.value.fullKey)
+    }
+  }
+
   return {
     issues, allIssues, activeIssue, loading, error, filters,
     setFilter, clearFilters,
     fetchIssues, fetchAllIssues, fetchIssueByKey,
     createIssue, updateIssue, updateIssueStatus, deleteIssue, reorderIssues,
-    issuesByStatus,
+    issuesByStatus, fetchIssueLabels, addLabel, removeLabel,
+    addComment, deleteComment,
   }
 })

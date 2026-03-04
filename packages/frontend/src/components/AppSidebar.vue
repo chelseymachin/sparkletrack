@@ -1,7 +1,6 @@
 <template>
   <aside class="sidebar">
     <div class="sidebar-logo">✨ SparkleTrack</div>
-
     <nav class="sidebar-nav">
       <RouterLink to="/" class="nav-item" active-class="nav-item--active">
         🏠 Dashboard
@@ -10,26 +9,36 @@
         📋 All Issues
       </RouterLink>
     </nav>
-
     <div class="sidebar-section-label">Projects</div>
-
     <nav class="sidebar-projects">
-      <RouterLink
+      <div
+        class="nav-project"
+        :class="{ 'nav-project--active': isProjectActive(project.id) }"
         v-for="project in projectsStore.projects"
         :key="project.id"
-        :to="`/projects/${project.id}/board`"
-        class="nav-item"
-        active-class="nav-item--active"
       >
-        <span>{{ project.icon }} {{ project.name }}</span>
-        <span class="project-prefix">{{ project.prefix }}</span>
-      </RouterLink>
-
+        <RouterLink
+          :to="`/projects/${project.id}/board`"
+          class="nav-project__link"
+        >
+          <span class="nav-project__icon">{{ project.icon }}</span>
+          <span class="nav-project__name">{{ project.name }}</span>
+          <span class="nav-project__prefix" :style="{ color: project.color }">
+            {{ project.prefix }}
+          </span>
+        </RouterLink>
+        <RouterLink
+          :to="`/projects/${project.id}/settings`"
+          class="nav-project__settings"
+          title="Project settings"
+        >
+          ⚙
+        </RouterLink>
+      </div>
       <button class="nav-item nav-item--new" @click="uiStore.openCreateProject()">
         + New Project
       </button>
     </nav>
-
     <div class="sidebar-footer">
       ⚙ Settings &nbsp;·&nbsp; ? Help
     </div>
@@ -39,9 +48,15 @@
 <script setup>
 import { useProjectsStore } from '../stores/projects.js'
 import { useUIStore } from '../stores/ui.js'
+import { useRoute } from 'vue-router'
 
 const projectsStore = useProjectsStore()
 const uiStore = useUIStore()
+const route = useRoute()
+
+function isProjectActive(projectId) {
+  return route.params.projectId === String(projectId)
+}
 </script>
 
 <style lang="scss" scoped>
@@ -93,17 +108,86 @@ const uiStore = useUIStore()
   flex: 1;
 }
 
+.nav-project {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: $radius-sm;
+  transition: background 0.15s;
+
+  // Gear hidden by default
+  &__settings {
+    flex-shrink: 0;
+    padding: 5px 6px;
+    border-radius: $radius-sm;
+    font-size: 0.75rem;
+    color: $gray-600;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s;
+    line-height: 1;
+  }
+
+  &__link {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    padding: 7px $space-2;
+    border-radius: $radius-sm;
+    font-size: 0.82rem;
+    color: $gray-600;
+    transition: color 0.15s;
+  }
+
+  &__icon { flex-shrink: 0; }
+
+  &__name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  &__prefix {
+    font-family: $font-mono;
+    font-size: 0.65rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  // Hover state — target parent, affect children
+  &:hover {
+    background: $pink-100;
+
+    .nav-project__link { color: $pink-500; }
+    .nav-project__settings { opacity: 1; }
+  }
+
+  // Active state — target parent, affect children
+  &--active {
+    background: $pink-100;
+
+    .nav-project__link {
+      color: $pink-500;
+      font-weight: 600;
+    }
+
+    .nav-project__settings { opacity: 1; }
+  }
+}
+
 .nav-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: $space-2;
   padding: 7px $space-2;
   border-radius: $radius-sm;
   font-size: 0.82rem;
   color: $gray-600;
-  transition: background 0.15s, color 0.15s;
-  width: 100%;
   text-align: left;
+  transition: background 0.15s, color 0.15s;
 
   &:hover {
     background: $pink-50;
@@ -121,6 +205,7 @@ const uiStore = useUIStore()
     color: $gray-400;
     margin-top: $space-2;
     justify-content: center;
+    width: 100%;
 
     &:hover {
       border-color: $pink-300;
@@ -128,12 +213,6 @@ const uiStore = useUIStore()
       background: $pink-50;
     }
   }
-}
-
-.project-prefix {
-  font-family: $font-mono;
-  font-size: 0.65rem;
-  color: $pink-400;
 }
 
 .sidebar-footer {
