@@ -29,33 +29,11 @@
     </div>
 
     <!-- Filters -->
-    <div class="filter-bar">
-      <select v-model="activeFilters.status" class="filter-select" @change="applyFilters">
-        <option value="">All Statuses</option>
-        <option value="backlog">Backlog</option>
-        <option value="todo">To Do</option>
-        <option value="in_progress">In Progress</option>
-        <option value="in_review">In Review</option>
-        <option value="done">Done</option>
-      </select>
-      <select v-model="activeFilters.type" class="filter-select" @change="applyFilters">
-        <option value="">All Types</option>
-        <option value="bug">Bug</option>
-        <option value="feature">Feature</option>
-        <option value="task">Task</option>
-        <option value="chore">Chore</option>
-      </select>
-      <select v-model="activeFilters.priority" class="filter-select" @change="applyFilters">
-        <option value="">All Priorities</option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-        <option value="critical">Critical</option>
-      </select>
-      <button v-if="hasActiveFilters" class="filter-clear" @click="clearFilters">
-        ✕ Clear filters
-      </button>
-    </div>
+    <FilterBar
+      v-model="activeFilters"
+      class="filter-bar"
+      @change="applyFilters"
+    />
 
     <!-- Loading -->
     <div v-if="issuesStore.loading" class="state-message">Loading issues...</div>
@@ -112,6 +90,7 @@ import { useUIStore } from '../stores/ui.js'
 import StatusDropdown from '../components/StatusDropdown.vue'
 import TypeBadge from '../components/TypeBadge.vue'
 import PriorityBadge from '../components/PriorityBadge.vue'
+import FilterBar from '../components/FilterBar.vue'
 
 const route         = useRoute()
 const issuesStore   = useIssuesStore()
@@ -218,30 +197,6 @@ function formatDate(dateStr) {
   align-items: center;
   margin-bottom: $space-5;
   flex-wrap: wrap;
-}
-
-.filter-select {
-  border: 1.5px solid $gray-200;
-  border-radius: $radius-pill;
-  padding: 6px $space-4;
-  font-size: 0.82rem;
-  font-family: $font-body;
-  color: $gray-600;
-  background: $white;
-  outline: none;
-  cursor: pointer;
-
-  &:focus { border-color: $pink-300; }
-}
-
-.filter-clear {
-  font-size: 0.78rem;
-  color: $gray-400;
-  padding: 6px $space-3;
-  border-radius: $radius-pill;
-  border: 1.5px solid $gray-200;
-
-  &:hover { color: $coral-500; border-color: $coral-300; }
 }
 
 .issue-table {
