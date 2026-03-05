@@ -13,23 +13,56 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
+    timeout-minutes: 60
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
+        env:
+          ELECTRON_GET_USE_PROXY: true
+          GLOBAL_AGENT_HTTPS_PROXY: ${{ env.HTTPS_PROXY }}
+        timeout-minutes: 30
 
-      - name: Build
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Electron app (Mac)
+        if: matrix.os == 'macos-latest'
         run: npm run build:electron
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+
+      - name: Build Electron app (Windows)
+        if: matrix.os == 'windows-latest'
+        run: npm run build:electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WIN_CSC_LINK: ''
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        timeout-minutes: 30
+
+      - name: Build Electron app (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: npm run build:electron
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sparkletrack-${{ matrix.os }}
-          path: dist-electron/**/*
+          path: |
+            dist-electron/*.exe
+            dist-electron/*.dmg
+            dist-electron/*.AppImage
+            dist-electron/*.deb
+          if-no-files-found: ignore
