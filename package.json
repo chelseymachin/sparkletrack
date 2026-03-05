@@ -1,15 +1,96 @@
 {
   "name": "sparkletrack",
-  "private": true,
+  "version": "1.0.0",
+  "description": "An issue tracker for hobby developers",
+  "main": "electron/main.js",
+  "type": "module",
+  "author": "Chelsey Machin",
+  "license": "MIT",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\"",
-    "dev:backend": "npm run dev -w packages/backend",
-    "dev:frontend": "npm run dev -w packages/frontend"
+    "dev:electron": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "npm run build --workspace=packages/frontend",
+    "build:electron": "npm run build && electron-builder",
+    "dist": "npm run build:electron"
+  },
+  "build": {
+    "appId": "com.sparkletrack.app",
+    "productName": "SparkleTrack",
+    "icon": "electron/icons/icon",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "packages/backend/**/*",
+      "packages/frontend/dist/**/*",
+      "node_modules/**/*",
+      "!node_modules/.cache",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "packages/backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!node_modules/.cache"
+        ]
+      },
+      {
+        "from": "packages/frontend/dist",
+        "to": "frontend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "electron/icons/icon.icns",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "icon": "electron/icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "icon": "electron/icons/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "electron": "^40.7.0",
+    "electron-builder": "^26.8.1"
   }
 }

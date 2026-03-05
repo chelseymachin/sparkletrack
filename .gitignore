@@ -18,6 +18,16 @@ packages/frontend/dist/
 .DS_Store
 Thumbs.db
 
+# Electron build output
+dist-electron/
+
+# Electron builder cache
+.electron-builder.env
+
+# electron-builder temp files
+electron/icons/*.icns
+electron/icons/*.ico
+
 # Editor
 .vscode/
 .idea/

@@ -158,7 +158,7 @@ async function deleteProject() {
     padding: $space-4;
     border: 1.5px solid $coral-100;
     border-radius: $radius-md;
-    background: $coral-50;
+    background: $coral-500;
   }
 
   &__info {

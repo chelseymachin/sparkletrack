@@ -1,14 +1,29 @@
 import axios from 'axios'
 
-const api = axios.create({
-  baseURL: '/api',
-})
+async function getBaseURL() {
+  // In Electron production, get the dynamic port
+  if (window.electron) {
+    const port = await window.electron.getBackendPort()
+    return `http://localhost:${port}/api`
+  }
+  // In dev, use Vite proxy
+  return '/api'
+}
 
-// Response interceptor — catch all API errors and show toast
+// Create instance with dynamic base URL
+const api = axios.create({ baseURL: '/api' })
+
+// Update base URL if running in Electron
+if (window.electron) {
+  window.electron.getBackendPort().then(port => {
+    api.defaults.baseURL = `http://localhost:${port}/api`
+  })
+}
+
+// Response interceptor
 api.interceptors.response.use(
   response => response,
   error => {
-    // Import dynamically to avoid circular dependency
     import('../stores/ui.js').then(({ useUIStore }) => {
       const uiStore = useUIStore()
       const message = error.response?.data?.error ?? 'Something went wrong'
