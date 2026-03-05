@@ -100,7 +100,7 @@ const uiStore       = useUIStore()
 const projectId = computed(() => Number(route.params.projectId))
 const project   = computed(() => projectsStore.projects.find(p => p.id === projectId.value))
 
-const activeFilters = reactive({ status: '', type: '', priority: '' })
+let activeFilters = reactive({ status: '', type: '', priority: '' })
 const hasActiveFilters = computed(() =>
   Object.values(activeFilters).some(v => v !== '')
 )

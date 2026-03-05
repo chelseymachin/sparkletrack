@@ -194,24 +194,16 @@ router.delete('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'Project not found' })
     }
 
+    // Soft delete all issues in this project
+    db.update(issues)
+      .set({ archived: true })
+      .where(eq(issues.projectId, Number(req.params.id)))
+      .run()
+
     // Soft delete the project
     db.update(projects)
       .set({ archived: true })
       .where(eq(projects.id, Number(req.params.id)))
-      .run()
-
-    // Cascade close all open issues for this project
-    db.update(issues)
-      .set({
-        status: 'done',
-        closedAt: new Date().toISOString(),
-      })
-      .where(
-        and(
-          eq(issues.projectId, Number(req.params.id)),
-          sql`${issues.status} != 'done'`
-        )
-      )
       .run()
 
     res.json({ success: true })

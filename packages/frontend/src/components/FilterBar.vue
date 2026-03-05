@@ -43,7 +43,7 @@ const props = defineProps({
 
 const emits = defineEmits(['update:modelValue', 'change'])
 
-const localFilters = reactive({ ...props.modelValue })
+let localFilters = reactive({ ...props.modelValue })
 
 const hasActiveFilters = computed(() =>
   Object.values(localFilters).some(v => v !== '')

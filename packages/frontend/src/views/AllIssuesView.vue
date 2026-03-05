@@ -80,7 +80,7 @@ import PriorityBadge from '../components/PriorityBadge.vue'
 const issuesStore = useIssuesStore()
 const uiStore     = useUIStore()
 
-const filters = reactive({ status: '', type: '', priority: '' })
+let filters = reactive({ status: '', type: '', priority: '' })
 
 const hasActiveFilters = computed(() =>
   Object.values(filters).some(v => v !== '')

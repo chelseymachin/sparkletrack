@@ -15,6 +15,13 @@
       "when": 1772650516626,
       "tag": "0001_closed_magdalene",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1772672963248,
+      "tag": "0002_wet_gressill",
+      "breakpoints": true
     }
   ]
 }

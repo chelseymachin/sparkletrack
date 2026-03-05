@@ -4,7 +4,7 @@ import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core'
 export const projects = sqliteTable('projects', {
   id:          integer('id').primaryKey({ autoIncrement: true }),
   name:        text('name').notNull(),
-  prefix:      text('prefix').notNull().unique(),   // e.g. "SPARK" — immutable after creation
+  prefix:      text('prefix').notNull().unique(),  
   description: text('description'),
   color:       text('color').notNull().default('#ff5eab'),
   icon:        text('icon').notNull().default('🌸'),
@@ -16,14 +16,15 @@ export const projects = sqliteTable('projects', {
 export const issues = sqliteTable('issues', {
   id:          integer('id').primaryKey({ autoIncrement: true }),
   projectId:   integer('project_id').notNull().references(() => projects.id),
-  number:      integer('number').notNull(),          // per-project incrementing number
-  fullKey:     text('full_key').notNull().unique(),  // e.g. "SPARK-42"
+  number:      integer('number').notNull(),
+  fullKey:     text('full_key').notNull().unique(),
   title:       text('title').notNull(),
-  description: text('description'),                  // stored as HTML from Tiptap
-  type:        text('type').notNull().default('task'),        // bug | feature | task | chore
-  status:      text('status').notNull().default('backlog'),   // backlog | todo | in_progress | in_review | done
-  priority:    text('priority').notNull().default('medium'),  // low | medium | high | critical
+  description: text('description'),
+  type:        text('type').notNull().default('task'),
+  status:      text('status').notNull().default('backlog'),
+  priority:    text('priority').notNull().default('medium'),
   boardOrder:  integer('board_order').notNull().default(0),
+  archived:    integer('archived', { mode: 'boolean' }).notNull().default(false), 
   createdAt:   text('created_at').notNull().default(new Date().toISOString()),
   updatedAt:   text('updated_at').notNull().default(new Date().toISOString()),
   closedAt:    text('closed_at'),
@@ -56,8 +57,8 @@ export const activityLog = sqliteTable('activity_log', {
   id:        integer('id').primaryKey({ autoIncrement: true }),
   issueId:   integer('issue_id').references(() => issues.id),
   projectId: integer('project_id').references(() => projects.id),
-  action:    text('action').notNull(),    // e.g. "status_changed", "comment_added", "issue_created"
-  fromValue: text('from_value'),          // e.g. "todo"
-  toValue:   text('to_value'),            // e.g. "in_progress"
+  action:    text('action').notNull(),
+  fromValue: text('from_value'),          
+  toValue:   text('to_value'),           
   createdAt: text('created_at').notNull().default(new Date().toISOString()),
 })

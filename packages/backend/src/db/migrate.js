@@ -21,7 +21,8 @@ const db = drizzle(sqlite)
 const migrationsFolder = path.resolve(__dirname, './migrations')
 
 console.log('✨ Running migrations...')
+sqlite.pragma('foreign_keys = OFF')
 migrate(db, { migrationsFolder })
+sqlite.pragma('foreign_keys = ON')
 console.log('✅ Migrations complete!')
-
 sqlite.close()
