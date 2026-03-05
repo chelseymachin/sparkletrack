@@ -96,7 +96,7 @@ Want to poke around the code or contribute? Here's how to get it running locally
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/sparkletrack
+git clone https://github.com/chelseymachin/sparkletrack
 cd sparkletrack
 
 # Install all dependencies
