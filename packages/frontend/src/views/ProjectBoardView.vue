@@ -28,13 +28,15 @@
             ≡ List
           </RouterLink>
         </div>
-        <button class="btn btn--primary" @click="uiStore.openCreateIssue()">
-          + Issue
-        </button>
       </div>
     </div>
 
-    <div v-if="issuesStore.loading" class="state-message">Loading board...</div>
+    <div v-if="issuesStore.loading" class="board-skeleton">
+      <div v-for="i in 5" :key="i" class="board-skeleton__col">
+        <div class="skeleton-line skeleton-line--short" style="margin-bottom: 12px"></div>
+        <SkeletonCard v-for="j in 2" :key="j" />
+      </div>
+    </div>
 
     <div v-else class="board">
       <BoardColumn
@@ -60,6 +62,7 @@ import { useIssuesStore } from '../stores/issues.js'
 import { useProjectsStore } from '../stores/projects.js'
 import { useUIStore } from '../stores/ui.js'
 import BoardColumn from '../components/BoardColumn.vue'
+import SkeletonCard from '../components/SkeletonCard.vue'
 
 const route         = useRoute()
 const issuesStore   = useIssuesStore()

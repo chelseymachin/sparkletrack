@@ -237,6 +237,7 @@ watch(
 )
 
 // When the issue loads or status changes, fetch labels and refresh feed
+// if status is done, timeout to wait for animation
 watch(
   () => issue.value?.status,
   async (newStatus, oldStatus) => {
@@ -244,6 +245,9 @@ watch(
       labelsStore.fetchLabels(issue.value.projectId)
     }
     if (newStatus && oldStatus && newStatus !== oldStatus) {
+      if (newStatus === 'done') {
+        await new Promise(resolve => setTimeout(resolve, 1400))
+      }
       await issuesStore.fetchIssueByKey(route.params.key)
     }
   },

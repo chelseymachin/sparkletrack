@@ -6,6 +6,8 @@ import issuesRouter from './src/routes/issues.js'
 import labelsRouter   from './src/routes/labels.js'
 import commentsRouter from './src/routes/comments.js'
 import dashboardRouter from './src/routes/dashboard.js'
+import searchRouter from './src/routes/search.js'
+import exportRouter from './src/routes/export.js'
 
 const app = express()
 const PORT = process.env.PORT ?? 3001
@@ -24,6 +26,8 @@ router.use('/issues', issuesRouter)
 router.use('/labels', labelsRouter)
 router.use('/comments', commentsRouter)
 router.use('/dashboard', dashboardRouter)
+router.use('/search', searchRouter)
+router.use('/export', exportRouter)
 
 router.post('/projects/:projectId/issues', (req, res, next) => {
   req.url = `/project/${req.params.projectId}`

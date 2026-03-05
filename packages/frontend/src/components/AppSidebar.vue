@@ -40,7 +40,9 @@
       </button>
     </nav>
     <div class="sidebar-footer">
-      ⚙ Settings &nbsp;·&nbsp; ? Help
+      <a href="/api/export/json" download class="footer-link">⬇ Export</a>
+      <span>·</span>
+      <button class="footer-link" @click="uiStore.shortcutsOpen = true">? Help</button>
     </div>
   </aside>
 </template>
@@ -222,5 +224,12 @@ function isProjectActive(projectId) {
   padding-top: $space-4;
   border-top: 1px solid $gray-100;
   margin-top: $space-4;
+}
+
+.footer-link {
+  font-size: 0.72rem;
+  color: $gray-400;
+  transition: color 0.15s;
+  &:hover { color: $pink-500; }
 }
 </style>

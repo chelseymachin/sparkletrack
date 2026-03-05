@@ -5,7 +5,9 @@ export const useUIStore = defineStore('ui', () => {
   // Modal state
   const createIssueModalOpen  = ref(false)
   const createProjectModalOpen = ref(false)
-  const createIssueDefaults   = ref({})  // e.g. pre-set status when opening from a board column
+  const createIssueDefaults   = ref({})
+  const searchOpen    = ref(false)
+  const shortcutsOpen = ref(false)
 
   function openCreateIssue(defaults = {}) {
     createIssueDefaults.value = defaults
@@ -40,6 +42,6 @@ export const useUIStore = defineStore('ui', () => {
   return {
     createIssueModalOpen, createProjectModalOpen, createIssueDefaults,
     openCreateIssue, closeCreateIssue, openCreateProject, closeCreateProject,
-    toasts, toast, removeToast,
+    toasts, toast, removeToast, searchOpen, shortcutsOpen,
   }
 })

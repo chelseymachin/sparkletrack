@@ -4,7 +4,11 @@
     <div class="app-main">
       <AppTopbar />
       <main class="app-content">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+          <Transition name="page" mode="out-in">
+            <component :is="Component" :key="$route.path" />
+          </Transition>
+        </RouterView>
       </main>
     </div>
 
@@ -12,6 +16,8 @@
     <CreateProjectModal />
     <CreateIssueModal />
     <ToastNotifications />
+    <CommandPalette />
+    <ShortcutsModal />
   </div>
 </template>
 
@@ -21,7 +27,13 @@ import AppTopbar from './components/AppTopbar.vue'
 import CreateIssueModal from './components/CreateIssueModal.vue'
 import CreateProjectModal from './components/CreateProjectModal.vue'
 import ToastNotifications from './components/ToastNotifications.vue'
+import CommandPalette from './components/CommandPalette.vue'
+import ShortcutsModal from './components/ShortcutsModal.vue'
 import { useProjectsStore } from './stores/projects.js'
+import { useKeyboardShortcuts } from './composables/useKeyboardShortcuts.js'
+
+// Setup keyboard shortcuts
+useKeyboardShortcuts()
 
 // Load projects on app mount so sidebar is populated
 const projectsStore = useProjectsStore()

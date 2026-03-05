@@ -16,6 +16,7 @@
         <StatusBadge :status="option.value" />
       </button>
     </div>
+    <SparkleEffect :trigger="sparkle" />
   </div>
 </template>
 
@@ -24,6 +25,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import StatusBadge from './StatusBadge.vue'
 import { useIssuesStore } from '../stores/issues.js'
 import { useUIStore } from '../stores/ui.js'
+import SparkleEffect from './SparkleEffect.vue'
 
 const props = defineProps({
   issue: { type: Object, required: true }
@@ -33,6 +35,7 @@ const issuesStore = useIssuesStore()
 const uiStore     = useUIStore()
 const open        = ref(false)
 const dropdownRef = ref(null)
+const sparkle = ref(false)
 
 const statusOptions = [
   { value: 'backlog'     },
@@ -47,6 +50,12 @@ async function select(status) {
   if (status === props.issue.status) return
   try {
     await issuesStore.updateIssueStatus(props.issue.id, status)
+
+    if (status === 'done') {
+      console.log('triggering sparkle')
+      sparkle.value = true
+      setTimeout(() => sparkle.value = false, 1500)
+    }
   } catch {
     uiStore.toast.error('Failed to update status')
   }
