@@ -9,16 +9,17 @@
     "email": "chelseymachin@gmail.com"
   },
   "license": "MIT",
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\"",
-    "dev:electron": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\" \"wait-on http://localhost:5173 && electron .\"",
+    "postinstall": "electron-rebuild -f -w better-sqlite3",
+    "dev": "npm run dev --workspace=packages/frontend",
+    "dev:electron": "concurrently \"npm run dev --workspace=packages/frontend\" \"wait-on http://localhost:5173 && electron .\"",
     "build": "npm run build --workspace=packages/frontend",
     "build:electron": "npm run build && electron-builder",
     "dist": "npm run build:electron"
   },
+  "workspaces": [
+    "packages/frontend"
+  ],
   "build": {
     "appId": "com.sparkletrack.app",
     "productName": "SparkleTrack",
@@ -28,28 +29,10 @@
     },
     "files": [
       "electron/**/*",
-      "packages/backend/**/*",
       "packages/frontend/dist/**/*",
       "node_modules/**/*",
       "!node_modules/.cache",
       "!**/*.map"
-    ],
-    "extraResources": [
-      {
-        "from": "packages/backend",
-        "to": "backend",
-        "filter": [
-          "**/*",
-          "!node_modules/.cache"
-        ]
-      },
-      {
-        "from": "packages/frontend/dist",
-        "to": "frontend",
-        "filter": [
-          "**/*"
-        ]
-      }
     ],
     "mac": {
       "category": "public.app-category.productivity",
@@ -91,10 +74,16 @@
     }
   },
   "dependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.3",
+    "better-sqlite3": "^12.6.2",
+    "drizzle-kit": "^0.31.9",
+    "drizzle-orm": "^0.45.1",
     "electron": "^40.7.0",
-    "electron-builder": "^26.8.1"
+    "electron-builder": "^26.8.1",
+    "wait-on": "^9.0.4"
   }
 }

@@ -40,7 +40,7 @@
       </button>
     </nav>
     <div class="sidebar-footer">
-      <a href="/api/export/json" download class="footer-link">⬇ Export</a>
+      <button class="footer-link" @click="handleExport">⬇ Export</button>
       <span>·</span>
       <button class="footer-link" @click="uiStore.shortcutsOpen = true">? Help</button>
     </div>
@@ -59,6 +59,18 @@ const route = useRoute()
 function isProjectActive(projectId) {
   return route.params.projectId === String(projectId)
 }
+
+async function handleExport() {
+  const data = await window.api.export.json()
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `sparkletrack-export-${Date.now()}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 </script>
 
 <style lang="scss" scoped>

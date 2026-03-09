@@ -1,23 +1,17 @@
 name: Release
-
 on:
   push:
     tags:
       - 'v*'
-
 permissions:
   contents: write
-
 jobs:
   build:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-
     runs-on: ${{ matrix.os }}
-
     timeout-minutes: 60
-
     steps:
       - uses: actions/checkout@v4
 
@@ -32,13 +26,11 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        env:
-          ELECTRON_GET_USE_PROXY: true
-          GLOBAL_AGENT_HTTPS_PROXY: ${{ env.HTTPS_PROXY }}
         timeout-minutes: 30
 
-      - name: Build frontend
-        run: npm run build
+      - name: Rebuild better-sqlite3 for Electron
+        shell: bash
+        run: npx electron-rebuild -f -w better-sqlite3
 
       - name: Build Electron app (Mac)
         if: matrix.os == 'macos-latest'
@@ -52,7 +44,6 @@ jobs:
         run: npm run build:electron
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WIN_CSC_LINK: ''
           CSC_IDENTITY_AUTO_DISCOVERY: false
         timeout-minutes: 30
 
