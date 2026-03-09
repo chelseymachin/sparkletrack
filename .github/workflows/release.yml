@@ -1,11 +1,40 @@
 name: Release
 on:
   push:
+    branches: 
+      - main
     tags:
       - 'v*'
 permissions:
   contents: write
 jobs:
+  tag:
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore: bump version')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      
+      - name: Bump patch version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          npm version patch --no-git-tag-version
+          git add package.json
+          git commit -m "chore: bump version to $(node -p "require('./package.json').version")"
+          git push origin main
+      
+      - name: Create and push tag
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git tag v$VERSION
+          git push origin v$VERSION
   build:
     strategy:
       matrix:
