@@ -1,6 +1,6 @@
 {
   "name": "sparkletrack",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An issue tracker for hobby developers",
   "main": "electron/main.js",
   "type": "module",
