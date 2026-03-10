@@ -56,13 +56,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Rebuild better-sqlite3 for Electron
-        shell: bash
-        run: npx electron-rebuild -f -w better-sqlite3
-
       - name: Install dependencies
         run: npm install
         timeout-minutes: 30
+
+      - name: Rebuild better-sqlite3 for Electron
+        shell: bash
+        run: npx electron-rebuild -f -w better-sqlite3
 
       - name: Build Electron app (Mac)
         if: matrix.os == 'macos-latest'
